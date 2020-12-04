@@ -1,8 +1,6 @@
-
-
-
-
 # linux
+
+
 
 ## 配置信息
 
@@ -580,7 +578,19 @@ hell.txt
 hell.txt  test1  test1.gz
 ```
 
+zip文件
 
+压缩为zip文件
+
+zip 压缩后的文件名.zip   目标压缩文件名
+
+```shell
+zip te.zip test1
+```
+
+解压zip文件
+
+unzip 目标解压文件名
 
 ### 目录存放
 
@@ -648,6 +658,8 @@ i/a/o/I/A/O
 | --------------------- | ------------------------------------------------------------ |
 | dd                    | 删除游标所在的行                                             |
 | ndd                   | 删除游标向下n行                                              |
+| gg                    | 将光标跳到文档开头                                           |
+| G                     | 将光标条道文末                                               |
 | yy                    | 复制游标所在的行                                             |
 | p/P                   | 粘贴复制的内容到游标的下一行/上一行                          |
 | nyy                   | 复制游标向下的n行                                            |
@@ -928,4 +940,1052 @@ ps aux | wc -l
 ```
 
 #### find
+
+在目录中查找文件
+
+tips:
+
+ll 不是命令 应写作（ls -l)
+ls -l 命令默认显示的文件大小单位为byte
+若想显示单位则可使用ls -lh命令
+若想指定显示单位则可以使用ls -l block-size=单位名称   如 ls -l --block-size=m
+
+```shell
+#根据文件名称
+find 路径 -name 文件名称
+[root@master /]# find /opt/ -name hell.txt
+/opt/hell.txt
+#不区分大小写查找文件
+find 路径 -iname 文件名名称
+[root@master opt]# find /opt -iname HEllo.txt
+/opt/hello.txt
+#根据大小进行查找
+在find命令中的-size 参数中默认单位为b，其大小为512byte
+#查找大小为2b的文件
+[root@master opt]# find /opt  -size 2
+/opt/helloText
+[root@master opt]# find /opt  -size 2b
+/opt/helloText
+#查找大小小于1b的文件、
+[root@master opt]# find /opt -size -1b
+/opt/test1
+#查找大小大于7b的文件
+find /opt -size +7b
+#查找大小大于3b小于6b的文件
+find /opt -size -3b -size + 7b
+#根据权限查找
+find 路径 -perm 权限
+fins /opt -perm 777
+#根据用户名称/所属群组进行查找
+find 路径 -user 用户名
+find /opt -user root
+find 路径 -group 群组名称
+find /opt -group root
+#根据时间进行查找
+#被更改过的文件
+find -mtime 时间 
+//一天内被更改过的
+find -mtime 1
+//一天前被更改过的
+find -mtime +1
+#被访问的文件
+find -atime 时间
+#状态被改变的文件
+find -ctime 时间
+```
+
+#### kill
+
+关闭进程
+
+```
+kill -l<信息编号>
+若没有信息编号列出全部的信息名称
+
+```
+
+### 用户/群组
+
+#### 创建
+
+useradd 用户名称    //创建新用户
+
+passwd 用户名称    //更改用户密码
+
+#### 切换用户
+
+su 用户名称
+
+#### 删除
+
+userdel 用户名称  //删除用户
+
+groupdel 群组名称   //删除群组
+
+### shell
+
+#### 执行shell的三种方式
+
+1、bash shell文件名称
+
+​	bash hello.sh
+
+2、sh shell文件名称
+
+​	sh hello.sh
+
+3、./shell文件名称(需要开通权限)
+
+​	./hello.sh
+
+#### 简单的输出脚本
+
+```shell
+#!/bin/bash
+#!是一个约定的标记，告诉系统这个脚本需要什么解释器来执行，即使用哪一种shell
+
+示例：
+#创建.sh文件
+vi hello.sh
+#文件内写入内容
+#!/bin/bash
+echo "hello linux"
+#执行文件
+bash hello.sh
+```
+
+#### shell变量
+
+在定义变量时，变量名不加美元符号(php语言中需要)
+
+**注意：**
+
+1、变量名只能使用英文字母、数字和下划线，且首字母不能以数字开头
+
+2、中间不能有空格（尤其是等号左右），可以使用下划线
+
+3、不能使用标点符号
+
+4、不能使用bash里面的关键字
+
+##### 变量的使用
+
+对于已经定义过的变量，只要在变量名前面加美元符号即可
+
+对于变量名外的跨括号可加可不加，加花括号是为了帮助解释器识别变量的边界
+
+```shell
+#!/bin/bash
+user_name="superman"
+echo $user_name
+echo "my name is ${user_name}, you can not beat me"
+
+[root@master shell]# bash test.sh
+superman
+my name is superman, you can not beat me
+```
+
+##### 只读变量
+
+readonly 变量名称
+
+对于只读变量不能再次进行修改
+
+```shell
+#!/bin/bash
+url=www.bing.com
+readonly url
+url=www.gogle.com //对于变量进行再次赋值
+
+[root@master shell]# bash readonly.sh
+readonly.sh: line 4: url: readonly variable  //赋值失败
+```
+
+##### 删除变量
+
+unset 变量名称
+
+```shell
+#!/bin/bash
+url=https://www.cnblogs.com/shiningrain/
+unset url
+echo ${url}
+
+[root@master shell]# bash del.sh
+
+```
+
+##### 变量类型
+
+1、局部变量：在脚本或命令中定义，仅在当前shell示例中有效，其他shell启动的程序不能访问局部变量
+
+2、环境变量：所有的程序，包括shell启动的程序，都能访问环境变量，有些程序需要环境变量来保证其正常运行。必要的时候shell甲苯也可以定义环境变量
+
+3、shell变量：shell变量是由shell程序设置的特殊变量。shell变量中有一部分是环境变量，有一部分是局部变量，这些变量保证了shell的正常运行。
+
+##### shelll字符串
+
+对于字符串可以使用单引号 也可以使用双引号，也可以不用引号（不使用引号要注意不能含有空格）
+
+双引号的优点：
+
+双引号例可以有变量
+
+双引号里面可以出现转义字符
+
+```shell
+#!/bin/bash
+str=this_is_a_string
+str1='this is a string'
+str2="this is a string"
+echo $str
+echo ${str1}
+echo "this is what i write ${str2}"
+
+[root@master shell]# bash str.sh
+this_is_a_string
+this is a string
+this is what i write this is a string
+```
+
+##### 拼接字符串
+
+使用双引号拼接，使用单引号拼接
+
+```shell
+#!/bin/bash
+your_id="SpongeBob"
+#使用双引号拼接
+greeting="hello,"$your_id"!"
+greeting1="hello,${your_id}!"
+echo $greeting $greeting1
+#使用单引号拼接
+greeting2='hello,'$your_id'!'
+greeting3='hello,${your_id}!'
+echo $greeting2 $greeting3
+
+[root@master shell]# bash concat.sh
+hello,SpongeBob! hello,SpongeBob!
+hello,SpongeBob! hello,${your_id}!
+```
+
+##### 获取字符串长度
+
+echo ${#字符串名称}
+
+示例：
+
+echo ${#your_id}
+
+##### 提取子字符串
+
+echo ${string:起始位置:结束位置}  (起始位置的id默认为从0开始而非1)
+
+示例
+
+```shell
+#!/bin/bash
+string="abc"
+echo ${string:1:2}
+
+#!/bin/bash
+bc
+```
+
+查找子字符串
+
+```shell
+eccho` expr index "$字符串名称" 搜索的子字符串`（此处echo后的为``不是单引号
+echo `expr index "$greeting1" ho`
+```
+
+##### 数组
+
+创建数组的三种方式
+
+1、数组名称（value1 value2 value3...）数组值以空格分开
+
+2、数组名称（
+
+​				value1
+
+​				value2
+
+​				value3
+
+​				.........
+
+）
+
+3、数组名称[下标]=value
+
+读取数组
+
+${数组名称[下标]}
+
+使用@符号可以获取数组中的所有元素
+
+echo ${array[@]}
+
+```shell
+#!/bin/bash
+#创建数组
+array1=(10 29 238 84 094 2 45 23)
+array2=(1123
+       5
+       546534
+       653
+       5432)
+array3[0]=11
+array3[1]=230
+array3[2]=34
+array3[30]=90
+#读取数组
+echo ${array1[3]}
+value=${array2[0]}
+echo $value
+echo ${array3[@]}
+
+[root@master shell]# sh array.sh
+84
+1123
+11 230 34 90
+```
+
+获取数组长度
+
+变量名=${#数组名[@]}     变量名= ${#数组名[*]}
+
+获取数组单个元素的长度
+
+变量名=${#数组名[下标]}
+
+```shell
+#获取数组长度
+length=${#array1[@]}
+echo $length
+length2=${#array2[*]}
+echo $length2
+#获取数组单个元素的长度
+lengthn=${#array3[2]}
+echo $lengthn
+```
+
+#### 传递参数
+
+echo"$第几位参数 "（默认0 为执行文件名称）
+
+计算参数的个数
+
+echo"$#"
+
+将传入的参数作为一个字符串进行输出
+
+两种方式 $*  $@(两者的区别在于$*仅传递了一个参数，而$@则传入了传参个数的参数)
+
+```shell
+#!/bin/bash
+echo "shell传参实例"
+echo "执行的文件名:$0";
+echo "第一个参数:$1";
+echo "第二个参数:$2";
+echo "第三个参数:$3";
+echo "第四个参数:$4";
+echo "第五个参数:$5";
+echo "参数个数为:$#";
+echo "将传递的参数作为一个字符串进行输出 ： $*";
+echo "将传递的参数作为一个字符串进行输出 ： $@";
+#$*与$@的区别
+for i in "$*";do
+        echo $i
+done
+
+for j in "$@";do
+        echo $j
+done
+
+[root@master shell]# sh parameter.sh 1 2 3 33 56
+shell传参实例
+执行的文件名:parameter.sh
+第一个参数:1
+第二个参数:2
+第三个参数:3
+第四个参数:33
+第五个参数:56
+参数个数为:5
+将传递的参数作为一个字符串进行输出 ： 1 2 3 33 56
+将传递的参数作为一个字符串进行输出 ： 1 2 3 33 56
+1 2 3 33 56
+1
+2
+3
+33
+56
+```
+
+#### 基本运算符
+
+在表达式与运算符之间需要以空格进行分隔
+
+```
+`expr 变量1 运算符 变量二`
+val=`expr 2 + 3`
+echo $val
+echo`expr 2 ^ 3`
+```
+
+```shell
+#!/bin/bash
+val=`expr 2 + 1`
+echo "2 + 1 = $val"
+echo "4 + 4 = `expr 4 + 4 ` "
+echo "4 % 2 = `expr 4 % 2`"
+echo "6 / 3 = `expr 6 / 3`"
+echo "3 * 2 = `expr 3 \* 2`"
+a=2
+b=4
+if [ $a == $b ]
+then
+echo "a等于b"
+fi
+if [ $a != $b ]
+then
+echo "a不等于b"
+fi
+
+
+[root@master shell]# sh cal.sh 
+2 + 1 = 3
+4 + 4 = 8 
+4 % 2 = 0
+6 / 3 = 2
+3 * 2 = 6
+a不等于b
+```
+
+##### 关系运算符
+
+关系运算符只支持数字，不支持字符串，除非字符串的值式数字
+
+| 运算符 | 说明                                                  | 举例                       |
+| :----- | :---------------------------------------------------- | :------------------------- |
+| -eq    | 检测两个数是否相等，相等返回 true。                   | [ $a -eq $b ] 返回 false。 |
+| -ne    | 检测两个数是否不相等，不相等返回 true。               | [ $a -ne $b ] 返回 true。  |
+| -gt    | 检测左边的数是否大于右边的，如果是，则返回 true。     | [ $a -gt $b ] 返回 false。 |
+| -lt    | 检测左边的数是否小于右边的，如果是，则返回 true。     | [ $a -lt $b ] 返回 true。  |
+| -ge    | 检测左边的数是否大于等于右边的，如果是，则返回 true。 | [ $a -ge $b ] 返回 false。 |
+| -le    | 检测左边的数是否小于等于右边的，如果是，则返回 true。 | [ $a -le $b ] 返回 true。  |
+
+```shell
+#!/bin/bash
+a=45
+b=22
+c=22
+echo "a = $a ,b = $b ,c = $c"
+#两个变量是否相等
+if [ $a -eq $b ]
+then
+echo "$a -eq $b : a 等于 b"
+else
+echo "$a -eq $b : a 不等于 b "
+fi
+#两个变量是否不相等
+if [ $a -ne $b ]
+then
+echo "$a -ne $b : a与b不相等"
+else
+echo "$a -ne $b : a与b相等"
+fi
+#左边的数是否大于右边的数
+if [ $a -gt $b ]
+then
+echo "$a -gt $b : a > b"
+else
+echo "$a -gt $b : a < b"
+fi
+#左边的数是否小于右边的数
+if [ $a -lt $b ]
+then
+echo "$a -lt $b : a < b"
+else
+echo "$a -lt $b : a > b"
+fi
+#左边的数是否大于等于右边的数
+if [ $b -ge $c ]
+then
+echo "$b -ge $c : b >= c"
+else
+echo " $b -ge $c : b < c"
+fi
+#左边的数是否小于等于右边的数
+if [ $a -le $c ]
+then
+echo "$a -le $c : a <= c"
+else
+echo "$a -le $c : a > c"
+fi
+
+[root@master shell]# sh op.sh
+a = 45 ,b = 22 ,c = 22
+45 -eq 22 : a 不等于 b 
+45 -ne 22 : a与b不相等
+45 -gt 22 : a > b
+45 -lt 22 : a > b
+22 -ge 22 : b >= c
+45 -le 22 : a > c
+```
+
+##### 布尔运算符
+
+| 运算符 | 说明                                                | 举例                                     |
+| :----- | :-------------------------------------------------- | :--------------------------------------- |
+| !      | 非运算，表达式为 true 则返回 false，否则返回 true。 | [ ! false ] 返回 true。                  |
+| -o     | 或运算，有一个表达式为 true 则返回 true。           | [ $a -lt 20 -o $b -gt 100 ] 返回 true。  |
+| -a     | 与运算，两个表达式都为 true 才返回 true。           | [ $a -lt 20 -a $b -gt 100 ] 返回 false。 |
+
+```shell
+#!/bin/bash
+a=22
+b=10
+echo "a = $a ,b = $b"
+#非运算
+if [ $a != $b ]
+then
+echo "$a != $b : 返回true"
+else
+echo "$a != $b : 返回false"
+fi
+#或运算
+if [ $a -lt 20 -o $b -lt 20 ]
+then
+echo "$a -lt 20 -o $b -lt 20 : 返回true"
+else
+echo "$a -lt 20 -o $b -lt 20 : 返回false"
+fi
+#与运算
+if [ $a -gt 10 -a $b -lt 20  ]
+then
+echo "$a -gt 10 -a $b -lt 20 : 返回true"
+else
+echo "$a -gt 10 -a $b -lt 20 : 返回false"
+fi
+
+[root@master shell]# sh boolean.sh 
+a = 22 ,b = 10
+22 != 10 : 返回true
+22 -lt 20 -o 10 -lt 20 : 返回true
+22 -gt 10 -a 10 -lt 20 : 返回true
+```
+
+#### 逻辑运算
+
+| 运算符 | 说明       | 举例                                       |
+| :----- | :--------- | :----------------------------------------- |
+| &&     | 逻辑的 AND | [[ $a -lt 100 && $b -gt 100 ]] 返回 false  |
+| \|\|   | 逻辑的 OR  | [[ $a -lt 100 \|\| $b -gt 100 ]] 返回 true |
+
+注意 逻辑运算符需要双层中括号
+
+```shell
+#!/bin/bash
+a=22
+b=15
+c=24
+echo $a ,$b ,$c
+#逻辑运算与
+if [[ $a -gt $b && $a -lt $c ]]
+then
+echo "$a -gt $b && $a -lt $c : true "
+else
+echo "$a -gt $b && $a -lt $c : false"
+fi
+#逻辑运算或
+if [[ $a -gt $b || $a -gt $c ]]
+then
+echo "$a -gt $b || $a -gt $c : true"
+else
+echo "$a -gt $b || $a -gt $c : false"
+
+[root@master shell]# sh logic.sh 
+22 ,15 ,24
+22 -gt 15 && 22 -lt 24 : true 
+22 -gt 15 || 22 -gt 24 : true
+```
+
+#### 字符串运算符
+
+在对字符串运算符进行判断时，若字符串中含有空格，shell解析时会将其认为是多个参数
+
+，在进行判断是不知道获取哪个参数，即会报错误：line 14: [: too many arguments
+
+解决方法：在进行判断时将 $字符串名称 写作："$字符串名称"
+
+| 运算符 | 说明                                         | 举例                     |
+| :----- | :------------------------------------------- | :----------------------- |
+| =      | 检测两个字符串是否相等，相等返回 true。      | [ $a = $b ] 返回 false。 |
+| !=     | 检测两个字符串是否相等，不相等返回 true。    | [ $a != $b ] 返回 true。 |
+| -z     | 检测字符串长度是否为0，为0返回 true。        | [ -z $a ] 返回 false。   |
+| -n     | 检测字符串长度是否不为 0，不为 0 返回 true。 | [ -n "$a" ] 返回 true。  |
+| $      | 检测字符串是否为空，不为空返回 true。        | [ $a ] 返回 true。       |
+
+在检测字符串是否为空时，若字符串中间有空格则写作："$字符串名称"
+
+#### 文件测试运算符
+
+| 操作符  | 说明                                                         | 举例                      |
+| :------ | :----------------------------------------------------------- | :------------------------ |
+| -b file | 检测文件是否是块设备文件，如果是，则返回 true。              | [ -b $file ] 返回 false。 |
+| -c file | 检测文件是否是字符设备文件，如果是，则返回 true。            | [ -c $file ] 返回 false。 |
+| -d file | 检测文件是否是目录，如果是，则返回 true。                    | [ -d $file ] 返回 false。 |
+| -f file | 检测文件是否是普通文件（既不是目录，也不是设备文件），如果是，则返回 true。 | [ -f $file ] 返回 true。  |
+| -g file | 检测文件是否设置了 SGID 位，如果是，则返回 true。            | [ -g $file ] 返回 false。 |
+| -k file | 检测文件是否设置了粘着位(Sticky Bit)，如果是，则返回 true。  | [ -k $file ] 返回 false。 |
+| -p file | 检测文件是否是有名管道，如果是，则返回 true。                | [ -p $file ] 返回 false。 |
+| -u file | 检测文件是否设置了 SUID 位，如果是，则返回 true。            | [ -u $file ] 返回 false。 |
+| -r file | 检测文件是否可读，如果是，则返回 true。                      | [ -r $file ] 返回 true。  |
+| -w file | 检测文件是否可写，如果是，则返回 true。                      | [ -w $file ] 返回 true。  |
+| -x file | 检测文件是否可执行，如果是，则返回 true。                    | [ -x $file ] 返回 true。  |
+| -s file | 检测文件是否为空（文件大小是否大于0），不为空返回 true。     | [ -s $file ] 返回 true。  |
+| -e file | 检测文件（包括目录）是否存在，如果是，则返回 true。          | [ -e $file ] 返回 true。  |
+
+#### echo命令
+
+| 操作符    | 名称                                                        |
+| --------- | ----------------------------------------------------------- |
+| \n        | 换行 echo "hell \n   word"，使用前须在echo后加转义符 -e     |
+| \n        | 不换行，使用前须在echo后加转义符 -e                         |
+| >文件名称 | 将显示结果定向至指定文件 ，注意此方法会将原文件的内容替换掉 |
+| >>文件名  | 将显示结果定向至指定文件 ，此方法为将内容追加到目标文件中   |
+| `date`    | 显示当前时间                                                |
+
+```shell
+echo "this is the second test" >> /opt/hello.txt
+echo `date`
+```
+
+#### printf
+
+printf比echo的移植性更好
+
+```shell
+printf format-string [arguments]
+format-string 格式控制字符串
+arguments 参数列表，如果没有arguments那么%s 用null代替，%d用0代替
+```
+
+
+
+```shell
+#!/bin/bash
+printf "hello,shell\n"
+printf "%-10s %-8s %-4s\n" 姓名 性别 体重kg
+printf "%-10s %-8s %-4.2f\n" 张三 女 59.34
+printf "%-10s %-8s %-4.2f\n" 对三 男 66.56
+printf "%-10s %-8s %-4.2f\n" 可高 男 55.6
+printf "%-10s %-8s %-4.2f\n" 黄二万 女 45
+#指定一个参数 但多出的参数仍旧会按格式输出
+printf %s sd sjei djks
+printf "%s \n" sd sdhj ui
+printf "%s %s %s\n" s d g hs n
+#如果没有arguments那么%s会用null代替，%d会用0代替
+printf "%s and %d\n"
+
+[root@master shell]# sh printf.sh
+hello,shell
+姓名     性别   体重kg
+张三     女      59.34
+对三     男      66.56
+可高     男      55.60
+黄二万  女      45.00
+sdsjeidjkssd 
+sdhj 
+ui 
+s d g
+hs n 
+ and 0
+
+```
+
+| 序列  | 说明                                                         |
+| :---- | :----------------------------------------------------------- |
+| \a    | 警告字符，通常为ASCII的BEL字符                               |
+| \b    | 后退                                                         |
+| \c    | 抑制（不显示）输出结果中任何结尾的换行字符（只在%b格式指示符控制下的参数字符串中有效），而且，任何留在参数里的字符、任何接下来的参数以及任何留在格式字符串中的字符，都被忽略 |
+| \f    | 换页（formfeed）                                             |
+| \n    | 换行                                                         |
+| \r    | 回车（Carriage return）                                      |
+| \t    | 水平制表符                                                   |
+| \v    | 垂直制表符                                                   |
+| \\    | 一个字面上的反斜杠字符                                       |
+| \ddd  | 表示1到3位数八进制值的字符。仅在格式字符串中有效             |
+| \0ddd | 表示1到3位的八进制值字符                                     |
+
+#### 流程控制
+
+```shell
+#!/bin/bash
+#for循环
+for str in "this is a string"
+do
+        echo $str
+done
+
+for loop in 1 2 3 4 5 6
+do
+        echo $loop
+done
+#if else与test命令连用
+num1=$[2 * 3]
+num2=$[2 + 3]
+if test $[num1] -eq $[num2]
+then
+echo "两个数字相等"
+else
+echo "两个数字不相等"
+fi
+#while循环
+a=2
+while(($a < 10))
+do
+        echo $a
+        let "a++"   //自加操作   let"a--"自减操作
+done
+
+```
+
+统计词频
+
+#### 分割字符串
+
+##### tr
+
+tr命令的输出结尾没有换行符
+
+使用tr替换命令
+
+```shell
+#此处是将空格转换为换行符（此方法并不适用于有标点符号的字符串)
+[root@master shell]# echo "hello world" | tr " " "\n"
+hello
+world
+```
+
+-s 将列出的重复字符的每个输入序列替换为该字符的单次出现。
+
+```shell
+[root@master shell]# echo "hhelo dfdfwwwvers" | tr -s "hw"
+helo dfdfwvers
+```
+
+-d删除指定字符
+
+大小写转换
+
+```shell
+#方式一：
+'a-z' 'A-Z'
+[root@master shell]# cat hello.txt | tr 'a-z' 'A-Z'
+THE DAY IS SUNNY THE THE
+THE SUNNY IS IS
+#方式二：
+[:lower:] [:upper:] #注意两个[]之间有空格,该操作仅让输出格式改变，并未改变源文件
+#将文件内容转换为大写格式且将文件内容追加到另一个文件中
+cat hello.txt |tr [:lower:] [:upper:] >> terst.txt 
+[root@master shell]# cat terst.txt 
+THE DAY IS SUNNY THE THE
+THE SUNNY IS IS
+```
+
+##### uniq
+
+uniq -c 代表打印每行在文本中出现的此时
+
+sort排序
+
+-n 根据数字大小进行拍寻
+
+-r 将排序结果逆向显示
+
+```
+echo "the day is sunny the the" | tr " " "\n" |uniq -c |sort -r
+```
+
+在使用uniq之前，最好先使用sort将分割的字符串进行分组，，-c原理是字符串相同则加一，如果不进行先排序的话将无法统计准确的数目
+
+```shell
+#错误结果
+[root@master shell]# cat hello.txt|tr "\n" " "|xargs -d" " -n1|uniq -c
+      1 the
+      1 day
+      1 is
+      1 sunny
+      3 the
+      1 sunny
+      2 is
+#正确结果
+[root@master shell]# cat hello.txt|tr "\n" " "|xargs -d" " -n1|sort|uniq -c
+      1 day
+      3 is
+      2 sunny
+      4 the
+
+```
+
+##### xargs
+
+xargs可以将单行或多行文本输入转换为其他格式，例如多行变单行，单行变多行
+
+xargs可以将空白以及换行统一使用空格替换
+
+命令格式
+
+xargs -item command
+
+多行输入单行输出
+
+```shell
+[root@master shell]# cat hello.txt 
+the day is sunny the the
+the sunny is is
+[root@master shell]# cat hello.txt |xargs
+the day is sunny the the the sunny is is
+```
+
+-n选项多行输出
+
+```shell
+[root@master shell]# cat hello.txt |xargs -n1  #n后面的数字为几则每行输出几个字符
+the
+day
+is
+sunny
+the
+the
+the
+sunny
+is
+is
+[root@master shell]# cat hello.txt |xargs -n3
+the day is
+sunny the the
+the sunny is
+is
+```
+
+-d定义一个定界符
+
+```shell
+[root@master shell]# echo "hellovshujvsjdksv" |xargs -dv  #注意不要
+hello shuj sjdks  
+#若存在转义符则可以通过但单引号将转义符引起来而达到预期效果
+[root@master shell]# echo "hello\word\sdfs\dssa" |xargs -d'\'
+hello word sdfs dssa
+[root@master shell]# echo "hello\\word\\nsdfs\\ndssa" |xargs -d"\\"
+hello word nsdfs ndssa
+#对于想要分割的字符串为系统会认定为转义符的字符串，可进行反转义操作
+[root@master shell]# echo "hello\nword\nsdfs\ndssa" |xargs -d"\\\n"
+hello nword nsdfs ndssa
+#对于换行等其他转义符 可以指使用进行划分
+[root@master shell]# cat hello.txt
+the day is sunny the the
+the sunny is is
+[root@master shell]# cat hello.txt|xargs -d"\n"
+the day is sunny the the the sunny is is
+```
+
+##### sed
+
+替换、删除、更新文件中的内容，以行为处理单位
+
+格式：
+
+**sed command**(这对每行要进行的处理) **file**(要处理的文件)
+
+/2/d中的 d 表示删除，意思是说，只要某行内容中含有字符 2，就删掉这一行。（sed 所谓的删除都是在模式空间中执行的，不会真正改动 roc.txt 原文件
+
+```shell
+#删除指定行
+sed '2d' hello.txt  #删除第二行
+sed '2,5d' hello.txt  #删除第2~5行
+sed '3,$d'   #删除第三行开始的所有内容（包括第三行）
+#插入新文本\追加新文本
+行号i(a) \新文本内容（反斜杠后换行） 文件名称
+[root@master shell]# sed '2a\
+this is the insert line' hello.txt
+the day is sunny the the
+the sunny is is
+this is the insert line
+[root@master shell]# sed '2i\
+this is the insert line' hello.txt
+the day is sunny the the
+this is the insert line
+the sunny is is
+#替换文件内容 -c
+[root@master shell]# sed '2c\
+this is the new tetx' hello.txt
+the day is sunny the the
+this is the new tetx
+#将指定行的内容写入文件中 (此操作会覆盖原文件内容)
+sed -n '1,2w terst.txt' hello.txt
+#打印文件内容
+sed -n '1,3p' hello.txt  #n选项经常和 p 配合使用，其含义就是，输出那些匹配的行。
+```
+
+##### awk
+
+行匹配语句awk ' '只能使用单引号
+
+```shell
+#每行按空格或TAB分割
+awk'{print $1,$4}'  #输出文本中的第一项和第四项，按所写的顺序输出
+#格式化输出
+[root@master shell]# awk '{printf"%-8s %-10s\n",$1,$4}' hello.txt
+the      sunny     
+the      is
+#指定分割字符
+awk -F分割符号 
+实例：
+awk -F, '{print$1,$3}' hello.txt  				#按照逗号进行分割
+awk -f'[, ]' '{print$1,$3}' hello.txt			#多个分割符，先使用逗号进行分割 再使用空格进行分割
+awk 'BEGIN{FS=","} {print$1,$3}' hello.txt 		#内建变量
+#设置变量
+awk -v变量名称=变量值 
+[root@master shell]# awk -va=1 '{print $1,$1+a}' hello.txt
+the 1
+the 1
+2 3
+#过滤
+awk '过滤条件' 文件名称
+awk '$1 > 2' hello.txt				#过滤第一列大于2的行
+awk '$1 > 2 && $2=="day" {pritn$1,$2}' hello.txt	#过滤出第一列大于2且第二列为day的行
+#指定输出分割符
+[root@master shell]# awk '{print$1,$2,$3}' OFS="$" hello.txt		#使用$分割第一列、第二列、第三列
+the$day$is
+the$sunny$is
+2$$
+#匹配字符串
+~ 表示模式开始。// 中是模式
+[root@master shell]# awk '$2~/day/ ' hello.txt		#输出第第二列中含有day的行
+the day is sunny the the
+#忽略大小写
+awk 'BEGIN{IGNORECASE=1} /所要匹配的字符/' 文件名称
+[root@master shell]# awk 'BEGIN{IGNORECASE=1} /The/ ' hello.txt
+the day is sunny the the
+the sunny is is
+#取反
+[root@master shell]# awk '$1 !~ /the/ {print $1,$2}' hello.txt   #筛选第一列不为the的行
+2
+#awk脚本
+BEGIN{执行前语句}
+END{处理完所有的执行后要执行的语句}
+{处理每一行索要执行的语句}
+
+```
+
+#### 磁盘管理
+
+##### df 
+
+检查文件西戎的磁盘空间占用情况
+
+```
+#查看全部磁盘的占用情况
+df -h
+#查看指定目录的磁盘占用情况
+df -h 目录名称
+```
+
+##### du
+
+检查磁盘空间使用情况
+
+```
+#查看当前目录每个文件夹的占用情况 （在其后加上目录名称即可查看指定目录）
+du --max-depth=1 -h   #最后一行输出内容为统计占用多少磁盘
+#计算文件大小
+du -sh 文件目录
+```
+
+##### fdisk
+
+磁盘分区
+
+```
+fdisk -l 			#列出所有的磁盘情况
+df /				#找出系统中根目录所在的磁盘（重点是找磁盘文件名）
+
+```
+
+当root用户出现 Operation not permitted的问题时，首先使用lsattr查看文件的隐藏属性，再使用chattr -属性名称 去除属性，随后便能对文件进行正常操作
+
+### mysql安装
+
+1、查看系统中是否有自带的mysql
+
+```shell
+#检查系统中是否有自带的mysql
+rpm -qa mysql    		#若什么都没有显示则代表没有
+#如果有自带的mysql
+rpm -e mysql    #普通删除模式，若提示有依赖的其他文件时，进入下一步
+rpm -e --nodeps mysql  #强力删除模式
+```
+
+2、卸载mysql
+
+如果第一步系统中没有自带的mysql则可忽略此步骤
+
+```shell
+service mysqld status   #查看Mysql状态
+#出现以下状态则表示没有mysql服务(可忽略步骤3、4)
+[root@master software]# service mysql status
+Redirecting to /bin/systemctl status mysql.service
+Unit mysql.service could not be found.
+#若出现mysql服务已启动进入下一步
+
+```
+
+3、关闭mysql服务
+
+```shell
+service mysql stop 
+```
+
+4、卸载MySQL
+
+```shell
+rpm -e --nodeps mysql
+```
+
+5、查找mysql相关的残留目录
+
+```shell
+whereis mysql 
+find / -name mysql
+```
+
+6、删除残留
+
+```shell
+rm -rf /usr/lib64/mysql
+rm -rf /usr/share/mysql
+```
+
+7、删除mysql用户及用户组
+
+```shell
+id mysql 			#查看mysql用户及用户组
+userdel mysql 		#删除mysql用户及用户组
+```
+
+8、下载mysql(此处为mysql8)
+
+```
+wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.11-linux-glibc2.12-x86_64.tar.gz
+```
+
+一般会默认下载到/uer/local/src目录下，将其移动到/usr/local/mysql
+
+```
+https://www.cnblogs.com/yunian139/p/11804965.html
+```
 
