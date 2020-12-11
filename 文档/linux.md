@@ -2,12 +2,18 @@
 
 
 
+https://www.php.cn/linux/linux-system-contents.html
+
+https://www.php.cn/linux-421910.html
+
+https://blog.csdn.net/qq_36119192/article/details/82752515
+
 ## 配置信息
 
 ### 1、网络配置
 
 ```sh
-vi /etc/sysconfig/network-scriptr/ifcfg-ens33
+vi /etc/sysconfig/network-scripts/ifcfg-ens33
 ```
 
 ![img](../%E5%9B%BE%E7%89%87/20181109103926967.jpg)
@@ -115,6 +121,40 @@ ssh-copy-id -i id_rsa.pub root@master
 ```shell
 ssh master
 ```
+
+## linux系统启动过程
+
+Linux系统的启动分为5个阶段
+
+1、内核的引导
+
+​	操作系统接管硬件以后，首先读入 /boot 目录下的内核文件
+
+2、运行init 
+
+​	init 进程是系统所有进程的起点
+
+​	Linux允许为不同的场合，分配不同的开机启动程序，这就叫做"运行级别"（runlevel）。也就是说，启动时根据"运行级别"，确定要运行哪些程序.Linux一共有7个运行级别0~6
+
+​	运行级别0：系统停机状态，系统默认运行级别不能设为0，否则不能正常启动
+
+​	运行级别1：单用户工作状态，root权限，用于系统维护，禁止远程登陆
+
+​	运行级别2：多用户状态(没有NFS)
+
+​	运行级别3：完全的多用户状态(有NFS)，登陆后进入控制台命令行模式
+
+​	运行级别4：系统未使用，保留
+
+​	运行级别5：X11控制台，登陆后进入图形GUI模式
+
+​	运行级别6：系统正常关闭并重启，默认运行级别不能设为6，否则不能正常启动
+
+3、系统初始化
+
+4、建立终端
+
+5、用户登录系统
 
 ## 命令
 
@@ -924,7 +964,7 @@ if you have any question you can concat with her!
 
 #### ps
 
-产看进程
+查看进程
 
 ```shell
 #查看一个终端中的所有进行
@@ -1053,6 +1093,14 @@ echo "hello linux"
 #执行文件
 bash hello.sh
 ```
+
+输出提示信息
+
+```
+read -p "提示内容" s
+```
+
+
 
 #### shell变量
 
@@ -1271,6 +1319,61 @@ lengthn=${#array3[2]}
 echo $lengthn
 ```
 
+##### 函数
+
+```
+[ function ] funname [()]
+
+{
+    action;
+    [return int;]
+
+}
+```
+
+```shell
+#!/bin/bash
+read -p "请输入参数a" a
+read -p "请输入参数b" b
+demofun(){
+        if [[ a > b ]]
+        then
+                echo "$a > $b "
+        elif [[ a < b ]]
+        then
+                echo "$a < $b "
+        else
+                echo "$a = $b"
+        fi
+        return $(($a + $b))
+}
+echo " 开始执行函数 "
+demofun
+echo " 两个数字之和为$? !"
+echo " 函数执行结束 "
+```
+
+#### 函数传递参数
+
+```shell
+#!/bin/bash
+        funParam(){
+        echo "第一个参数为 $1"
+        echo "第二个参数为 $2"
+        #错误写法
+        echo "第十个参数为 $10"
+        echo "第十个参数为 ${10}"
+        echo "第十一个参数为 ${11}"
+        echo "参数总数有 $# 个"
+        echo "作为一个字符串输出所有参数 $* "
+}
+funParam 1 2 3 4 5 6 7 8 9 23 34
+#$10不能获取第十个参数，获取第十个参数需要${10} 当n>=10时需要使用${n}来获取参数
+
+```
+
+
+
 #### 传递参数
 
 echo"$第几位参数 "（默认0 为执行文件名称）
@@ -1326,6 +1429,14 @@ shell传参实例
 #### 基本运算符
 
 在表达式与运算符之间需要以空格进行分隔
+
+| 运算符 | 说明                                      | 举例                     |
+| ------ | ----------------------------------------- | ------------------------ |
+| =      | 检测两个字符串是否相等，相等返回 true。   | [ $a = $b ] 返回 false。 |
+| !=     | 检测两个字符串是否相等，不相等返回 true。 | [ $a != $b ] 返回 true。 |
+| -z     | 检测字符串长度是否为0，为0返回 true。     | [ -z $a ] 返回 false。   |
+| -n     | 检测字符串长度是否为0，不为0返回 true。   | [ -n $a ] 返回 true。    |
+| str    | 检测字符串是否为空，不为空返回 true。     | [ $a ] 返回 true。       |
 
 ```
 `expr 变量1 运算符 变量二`
@@ -1655,6 +1766,15 @@ done
 
 统计词频
 
+```shell
+#截取字符串
+${string: start :length}
+#示例
+var2=${s:4:2}
+```
+
+
+
 #### 分割字符串
 
 ##### tr
@@ -1882,13 +2002,19 @@ END{处理完所有的执行后要执行的语句}
 
 ```
 
+##### 将字符串转换为数字
+
+$((变量名称))
+
+
+
 #### 磁盘管理
 
 ##### df 
 
 检查文件西戎的磁盘空间占用情况
 
-```
+```shell
 #查看全部磁盘的占用情况
 df -h
 #查看指定目录的磁盘占用情况
@@ -1899,7 +2025,7 @@ df -h 目录名称
 
 检查磁盘空间使用情况
 
-```
+```shell
 #查看当前目录每个文件夹的占用情况 （在其后加上目录名称即可查看指定目录）
 du --max-depth=1 -h   #最后一行输出内容为统计占用多少磁盘
 #计算文件大小
@@ -1910,13 +2036,266 @@ du -sh 文件目录
 
 磁盘分区
 
-```
+```shell
 fdisk -l 			#列出所有的磁盘情况
 df /				#找出系统中根目录所在的磁盘（重点是找磁盘文件名）
 
 ```
 
 当root用户出现 Operation not permitted的问题时，首先使用lsattr查看文件的隐藏属性，再使用chattr -属性名称 去除属性，随后便能对文件进行正常操作
+
+##### linux查看默认网关
+
+```shell
+netstat -r
+```
+
+对系统进行更新
+
+```shell
+yum -y update
+```
+
+检测tcp/udp端口情况
+
+```shell
+nmap -sTU localhost
+```
+
+##### 将本地文件直接上传至linux
+
+```shell
+#查看系统自带的软件包信息
+yum provides */rz
+如果有Filename    : /usr/bin/rz 则进行下一步
+yum -y install lrzsz
+使用rz命令即可将本地文件上传至linux
+将文件加载到本地
+sz 文件名
+```
+
+### 根据传入的日期计算出所需要的日期
+
+```shell
+#!/bin/bash
+read -p "请输入日期(例:20201208): " s
+#echo "数字长度为${#s}"
+#判断输入是否为纯数字且为8位
+if [[ "$s" =~ ^[0-9]+$ && ${#s} == 8 ]]
+then
+#截取年份
+var1=${s:0:4}
+#截取月份
+var2=${s:4:2}
+#截取天
+var3=${s:6:2}
+var1=$(($var1))
+var2=$((10#$var2))
+var3=$((10#$var3))
+#输出年、月、日
+echo "$var1年$var2月$var3日"
+#判断该年份为闰年还是平年的表达式
+val1=`expr $var1 % 4`
+val2=`expr $var1 % 100`
+val3=`expr $var1 % 400`
+#判断年份与月份是否为正确日期
+if [[ $var1 -eq 0 || $var2 -lt 1 || $var2 -gt 12 ]]
+then
+	echo "无效日期"
+	exit;
+else
+#判断是闰年还是平年
+if [[ $val1 == 0 && $val2 != 0 || $val3 == 0 ]]
+then
+	year=1
+        echo "$var1是闰年"
+else
+	year=2
+        echo "$var1是平年"
+fi
+#判断日期中的天是否为正确日期
+case $var2 in
+	1|3|5|7|8|10|12)
+		if [[ $var3 -gt 31 || $var3 -eq 0 ]]
+		then
+			echo "请输入正确的日期"
+			exit
+		else
+		echo "当月第一天日期为：`date -d "$var1-$var2-01" "+%Y-%m-%d"`"
+		printf "当月最后一天为：%.4d-%.2d-%.2d \n" $var1 $var2 31
+		fi
+		;;
+	4|6|9|11)
+		if [[ $var3 -gt 30 || $var3 -eq 0 ]]
+		then
+			echo "请输入正确的日期"
+			exit
+		else
+		printf "当月第一天为：%.4d-%.2d-%.2d \n" $var1 $var2 01
+		printf "当月最后一天为：%.4d-%.2d-%.2d \n" $var1 $var2 30		
+		fi
+		;;
+#当月份为2月时根据闰年和平年来计算当月信息
+	2)
+		if [[ $year -eq 1 ]]
+		then
+		if [[ $var3 -gt 29 || $var3 -eq 0 ]]
+                then
+                        echo "请输入正确的日期"
+                        exit
+                else
+                        printf "当月第一天为：%.4d-%.2d-%.2d \n" $var1 $var2 01
+                        printf "当月最后一天为：%.4d-%.2d-%.2d \n" $var1 $var2 29
+		fi
+		fi
+		if [[ $year -eq 2 ]]
+		then
+			 if [[ $var3 -gt 28 || $var3 -eq 0 ]]
+                then
+                        echo "请输入正确的日期"
+                        exit
+                else
+                        printf "当月第一天为：%.4d-%.2d-%.2d \n" $var1 $var2 01
+                        printf "当月最后一天为：%.4d-%.2d-%.2d \n" $var1 $var2 28
+                fi
+				fi
+				;;
+esac
+	#输出当天是星期几
+	day=`date -d "$var1-$var2-$var3" +%A`
+	echo "当天为星期： $day"
+	#上上个月最后一天为上月第一天-1
+	day2=`date -d "$(date -d "- 1 month $var1-$var2-01") - 1 day" "+%Y-%m-%d"`
+	echo "上上个月最后一天为：$day2"
+	#输出下周的日期
+	day3=`date -d "+ 1 week $var1-$var2-$var3" +%A`
+	#根据下周的日期计算下周周一的日期
+	if [ $day3 == Monday ]
+	then
+		mon=`date -d "+ 1 week $var1-$var2-$var3" "+%Y-%m-%d"`
+		echo "下周周一日期为：$mon"
+	elif [[ $day3 == Tuesday ]]
+	then
+		mon=`date -d "$(date -d "+ 1 week $var1-$var2-$var3") - 1 day" "+%Y-%m-%d"`
+                echo "下周周一的日期为：$mon"
+	elif [[ $day3 == Wednesday ]]
+        then
+                mon=`date -d "$(date -d "+ 1 week $var1-$var2-$var3") - 2 day" "+%Y-%m-%d"`
+                echo "下周周一的日期为：$mon"
+	elif [[ $day3 == Thursday ]]
+        then
+                mon=`date -d "$(date -d "+ 1 week $var1-$var2-$var3") - 3 day" "+%Y-%m-%d"`
+                echo "下周周一的日期为：$mon"
+	elif [[ $day3 == Friday ]]
+        then
+                mon=`date -d "$(date -d "+ 1 week $var1-$var2-$var3") - 4 day" "+%Y-%m-%d"`
+                echo "下周周一的日期为：$mon"
+	elif [[ $day3 == Saturday ]]
+        then
+                mon=`date -d "$(date -d "+ 1 week $var1-$var2-$var3") - 5 day" "+%Y-%m-%d"`
+                echo "下周周一的日期为：$mon"
+	elif [[ $day3 == Sunday ]]
+        then
+                mon=`date -d "$(date -d "+ 1 week $var1-$var2-$var3") - 6 day" "+%Y-%m-%d"`
+                echo "下周周一的日期为：$mon"
+fi
+fi
+else
+	echo "请输入八位数日期！！"
+	exit
+fi
+#输出该月的日历
+cal $var3 $var2 $var1
+
+```
+
+​	DNS
+
+​	**dns域名解析服务**，就是将域名和ip之间做相应的转换，利用TCP和UDP的的53号端口
+
+DNS系统作用：
+
+​	正向解析：根据域名查找对应的IP地址
+
+​	反向解析：根据IP查找对应的域名
+
+DNS服务器的分类：
+
+
+
+#### rpm安装jdk
+
+命令格式：
+
+rpm -ivh rpm_package_name
+
+“-i”参数指明是要安装这个package，而“-v”这个参数则使输出信息增加，“-h”表示在安装过程中显示hashes作为在安装过程的一个进度条。
+
+在安装jdk时，若出现以下错误，需要查看所下载的安装包是否正确
+
+```shell
+warning: jdk-11.0.9_linux-aarch64_bin.rpm: Header V3 RSA/SHA256 Signature, key ID ec551f03: NOKEY
+Preparing...                          ################################# [100%]
+	package jdk-11.0.9-2000:11.0.9-ga.aarch64 is intended for a different architecture
+
+```
+
+例：
+
+正确的包为：jdk-11.0.9_linux-x64_bin.rpm 
+
+错误包：jdk-11.0.9_linux-aarch64_bin.rpm  
+
+rpm会默认安装在/usr/java目录下
+
+验证安装
+
+```shell
+[root@master jdk]# ll /usr/bin/java
+lrwxrwxrwx. 1 root root 22 Dec  8 09:47 /usr/bin/java -> /etc/alternatives/java
+[root@master jdk]# ll /etc/al
+aliases       aliases.db    alternatives/ 
+[root@master jdk]# ll /etc/alternatives/java
+lrwxrwxrwx. 1 root root 29 Dec  8 09:47 /etc/alternatives/java -> /usr/java/jdk-11.0.9/bin/java
+[root@master jdk]# java -version
+java version "11.0.9" 2020-10-20 LTS
+Java(TM) SE Runtime Environment 18.9 (build 11.0.9+7-LTS)
+Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.9+7-LTS, mixed mode)
+
+```
+
+修改环境变量：
+
+vi /etc/profile
+
+```shell
+JAVA_HOME=/usr/java/default
+PATH=$PATH:$JAVA_HOME/bin
+export JAVA_HOME PATH
+```
+
+使变量生效：source /etc/profile
+
+输出JAVA_HOME、PATH查看变量是否生效成功
+
+```shell
+[root@master jdk]# echo $JAVA_HOME
+/usr/java/default
+[root@master jdk]# echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/usr/java/default/bin
+```
+
+
+
+### 搭建tomcat服务器
+
+安装部署tomcat
+
+https://blog.csdn.net/qq_21077715/article/details/85541685
+
+配置tomcat自启
+
+https://blog.csdn.net/qq_21077715/article/details/85474967
 
 ### mysql安装
 
@@ -1979,11 +2358,100 @@ userdel mysql 		#删除mysql用户及用户组
 
 8、下载mysql(此处为mysql8)
 
-```
+```shell
 wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.11-linux-glibc2.12-x86_64.tar.gz
 ```
 
-一般会默认下载到/uer/local/src目录下，将其移动到/usr/local/mysql
+一般会默认下载到/uer/local/src目录下，将其移动到/usr/local/mysql，此处的安装路径为/opt/software/mysql/mysql8
+
+9、解压MySQL
+
+```shell
+ tar -zxvf mysql-8.0.11-linux-glibc2.12-x86_64.tar.gz
+```
+
+10、对解压后的文件进行重命名
+
+```shell
+mv mysql-8.0.11-linux-glibc2.12-x86_64 mysql8
+```
+
+11、在mysql8创建data文件
+
+```shell
+mkdir data
+```
+
+12、初始化数据库
+
+```shell
+ ./bin/mysqld --initialize
+ #成功后会提示 initializing of server has completed
+```
+
+13、在mysql8/support-files目录下创建my-config.cnf文件，并将文件复制道/etc/my.cnf
+
+```shell
+[root@master support-files]# touch my-config.cnf
+ cp -a /opt/software/mysql/mysql8/support-files/my-config.cnf /etc/my.cnf
+```
+
+14、修改my.cnf文件
+
+```shell
+basedir = /usr/local/mysql8
+
+datadir = /usr/local/mysql8/data
+
+prot = 3306
+
+socket = /tmp/mysql.sock
+
+init_connect='SET NAMES utf8mb4'
+
+```
+
+15、建立服务
+
+```shell
+cp -a /usr/local/mysql8/support-files/mysql.server /etc/init.d/mysqld
+```
+
+16、添加系统服务
+
+```shell
+chmod +x /etc/rc.d/init.d/mysqld
+chkconfig --add mysqld
+```
+
+17、查看是否添加成功
+
+```shell
+[root@master etc]# chkconfig --list
+
+Note: This output shows SysV services only and does not include native
+      systemd services. SysV configuration data might be overridden by native
+      systemd configuration.
+
+      If you want to list systemd services use 'systemctl list-unit-files'.
+      To see services enabled on particular target use
+      'systemctl list-dependencies [target]'.
+
+mysqld         	0:off	1:off	2:on	3:on	4:on	5:on	6:off
+netconsole     	0:off	1:off	2:off	3:off	4:off	5:off	6:off
+network        	0:off	1:off	2:on	3:on	4:on	5:on	6:off
+```
+
+18、配置全局环境变量
+
+```
+#编辑/etc/profile文件
+vi /etc/profile
+在文件底部添加以下配置信息
+
+```
+
+
 
 ```
 https://www.cnblogs.com/yunian139/p/11804965.html
