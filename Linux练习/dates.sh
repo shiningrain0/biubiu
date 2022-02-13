@@ -127,3 +127,6 @@ else
 fi
 #输出该月的日历
 cal $var3 $var2 $var1
+echo 按任意键继续
+read -n 1
+echo 继续运行
